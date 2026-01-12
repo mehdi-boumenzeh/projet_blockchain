@@ -4,12 +4,13 @@ import "dotenv/config";
 /** @type import('hardhat/config').HardhatUserConfig */
 export default {
   solidity: {
-    version: "0.8.19",
+    version: "0.8.20",
     settings: {
       optimizer: {
         enabled: true,
         runs: 200,
       },
+      viaIR: true,
     },
   },
   networks: {
@@ -23,7 +24,7 @@ export default {
     },
   },
   gasReporter: {
-    enabled: process.env.REPORT_GAS === "true",
+    enabled: true,
     currency: "USD",
     outputFile: "gas-report.txt",
     noColors: true,

@@ -184,23 +184,27 @@ describe("PublicProcurement - Complete Workflow", function () {
         });
 
         it("Should mark bid as invalid if over budget", async function () {
+            // Create a fresh tender for this test
+            await publicProcurement.createTender(DESCRIPTION_HASH, MAX_BUDGET, auditor.address);
+            const newTenderId = 2;
+
             const overBudgetAmount = ethers.parseEther("13");
             const nonce = ethers.randomBytes(32);
             const hash = ethers.keccak256(
                 ethers.solidityPacked(["uint256", "bytes32", "address"], [overBudgetAmount, nonce, other.address])
             );
 
-            await publicProcurement.connect(other).submitBid(tenderId, hash);
-            const tender = await publicProcurement.getTender(tenderId);
+            await publicProcurement.connect(other).submitBid(newTenderId, hash);
+            const tender = await publicProcurement.getTender(newTenderId);
             await time.increaseTo(tender.submissionDeadline + 1n);
 
             await expect(
-                publicProcurement.connect(other).revealBid(tenderId, overBudgetAmount, nonce)
+                publicProcurement.connect(other).revealBid(newTenderId, overBudgetAmount, nonce)
             )
                 .to.emit(publicProcurement, "BidRevealed")
-                .withArgs(tenderId, other.address, overBudgetAmount, false);
+                .withArgs(newTenderId, other.address, overBudgetAmount, false);
 
-            const bid = await publicProcurement.getBid(tenderId, other.address);
+            const bid = await publicProcurement.getBid(newTenderId, other.address);
             expect(bid.valid).to.be.false;
         });
 
